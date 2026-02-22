@@ -31,7 +31,7 @@ export function ProcessingView({ currentStep, error }: ProcessingViewProps) {
         },
         {
             id: "transcribe",
-            label: "Transcribing with OpenAI Whisper",
+            label: "Transcribing with AI",
             icon: FileText,
             status:
                 currentStep === "transcribe"
@@ -42,7 +42,7 @@ export function ProcessingView({ currentStep, error }: ProcessingViewProps) {
         },
         {
             id: "extract",
-            label: "Extracting medical data with GPT-4o",
+            label: "Extracting medical data",
             icon: Brain,
             status:
                 currentStep === "extract"
