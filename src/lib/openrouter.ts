@@ -60,6 +60,7 @@ const EMPTY_DATA: MedicalData = {
 const SYSTEM_PROMPT = `
 You are a strict medical information extraction engine.
 
+
 RULES:
 - Return ONLY valid JSON.
 - No markdown.
@@ -69,6 +70,8 @@ RULES:
 - Extract ONLY explicitly stated information.
 - If not present, return empty values.
 
+Analyse the conversation between doctor and patient provided and accoding to the
+symptoms and observations tols by the doctor or patient, predict all results in the format
 Return EXACTLY this structure:
 
 {
