@@ -14,8 +14,20 @@ import {
     ArrowRight,
     Clock,
     TrendingUp,
+    Trash2,
+    AlertTriangle,
 } from "lucide-react";
 import { formatDateTime } from "@/lib/utils";
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+    DialogTrigger,
+    DialogClose,
+} from "@/components/ui/dialog";
 
 interface DashboardStats {
     totalPatients: number;
@@ -49,6 +61,33 @@ export default function DashboardPage() {
         }
         fetchStats();
     }, []);
+
+    const handleDelete = async (id: string) => {
+        try {
+            const res = await fetch(`/api/reports/${id}`, {
+                method: "DELETE",
+            });
+
+            if (res.ok) {
+                const data = await res.json();
+                setStats((prev) => {
+                    if (!prev) return null;
+                    return {
+                        ...prev,
+                        totalPatients: data.patientDeleted ? prev.totalPatients - 1 : prev.totalPatients,
+                        totalReports: prev.totalReports - 1,
+                        recentConsultations: prev.recentConsultations.filter(
+                            (c) => c._id !== id
+                        ),
+                    };
+                });
+            } else {
+                console.error("Failed to delete report");
+            }
+        } catch (error) {
+            console.error("Error deleting report:", error);
+        }
+    };
 
     return (
         <DashboardLayout>
@@ -165,36 +204,75 @@ export default function DashboardPage() {
                         ) : stats?.recentConsultations && stats.recentConsultations.length > 0 ? (
                             <div className="space-y-3">
                                 {stats.recentConsultations.map((consultation) => (
-                                    <Link
+                                    <div
                                         key={consultation._id}
-                                        href={`/consultation/${consultation._id}`}
                                         className="flex items-center justify-between p-3 rounded-lg hover:bg-muted/50 transition-colors group"
                                     >
-                                        <div className="flex items-center gap-3">
-                                            <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
-                                                <Stethoscope className="w-5 h-5 text-primary" />
+                                        <Link
+                                            href={`/consultation/${consultation._id}`}
+                                            className="flex items-center justify-between flex-1 mr-4"
+                                        >
+                                            <div className="flex items-center gap-3">
+                                                <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
+                                                    <Stethoscope className="w-5 h-5 text-primary" />
+                                                </div>
+                                                <div>
+                                                    <p className="font-medium text-sm group-hover:text-primary transition-colors">
+                                                        {consultation.patientName}
+                                                    </p>
+                                                    <p className="text-xs text-muted-foreground">
+                                                        {consultation.diagnosis || "Pending diagnosis"}
+                                                    </p>
+                                                </div>
                                             </div>
-                                            <div>
-                                                <p className="font-medium text-sm group-hover:text-primary transition-colors">
-                                                    {consultation.patientName}
-                                                </p>
-                                                <p className="text-xs text-muted-foreground">
-                                                    {consultation.diagnosis || "Pending diagnosis"}
-                                                </p>
+                                            <div className="flex items-center gap-3">
+                                                <Badge
+                                                    variant={consultation.status === "finalized" ? "success" : "secondary"}
+                                                >
+                                                    {consultation.status}
+                                                </Badge>
+                                                <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                                                    <Clock className="w-3.5 h-3.5" />
+                                                    {formatDateTime(consultation.createdAt)}
+                                                </div>
                                             </div>
-                                        </div>
-                                        <div className="flex items-center gap-3">
-                                            <Badge
-                                                variant={consultation.status === "finalized" ? "success" : "secondary"}
-                                            >
-                                                {consultation.status}
-                                            </Badge>
-                                            <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                                                <Clock className="w-3.5 h-3.5" />
-                                                {formatDateTime(consultation.createdAt)}
-                                            </div>
-                                        </div>
-                                    </Link>
+                                        </Link>
+                                        <Dialog>
+                                            <DialogTrigger asChild>
+                                                <Button
+                                                    variant="ghost"
+                                                    size="icon"
+                                                    className="h-8 w-8 text-muted-foreground hover:text-destructive opacity-0 group-hover:opacity-100 focus:opacity-100 transition-opacity"
+                                                >
+                                                    <Trash2 className="w-4 h-4" />
+                                                </Button>
+                                            </DialogTrigger>
+                                            <DialogContent>
+                                                <DialogHeader>
+                                                    <DialogTitle className="flex items-center gap-2 text-destructive">
+                                                        <AlertTriangle className="h-5 w-5" />
+                                                        Delete Consultation?
+                                                    </DialogTitle>
+                                                    <DialogDescription>
+                                                        This action cannot be undone. This will permanently delete the consultation report for <span className="font-medium text-foreground">{consultation.patientName}</span>.
+                                                    </DialogDescription>
+                                                </DialogHeader>
+                                                <DialogFooter>
+                                                    <DialogClose asChild>
+                                                        <Button variant="outline">Cancel</Button>
+                                                    </DialogClose>
+                                                    <DialogClose asChild>
+                                                        <Button
+                                                            variant="destructive"
+                                                            onClick={() => handleDelete(consultation._id)}
+                                                        >
+                                                            Delete
+                                                        </Button>
+                                                    </DialogClose>
+                                                </DialogFooter>
+                                            </DialogContent>
+                                        </Dialog>
+                                    </div>
                                 ))}
                             </div>
                         ) : (
