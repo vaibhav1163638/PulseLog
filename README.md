@@ -34,8 +34,8 @@ npm install
 4. Click **Create Credentials → OAuth 2.0 Client ID**
 5. Set Application type: **Web application**
 6. Add **Authorized redirect URIs:**
-   - `http://localhost:3000/api/auth/callback/google` (dev)
-   - `https://your-domain.com/api/auth/callback/google` (prod)
+   - `https://pulse-log-six.vercel.app/api/auth/callback/google` (dev)
+   - `https://pulse-log-six.vercel.app/api/auth/callback/google` (prod)
 7. Copy the Client ID and Client Secret
 
 ### 3. MongoDB Atlas Setup
@@ -91,7 +91,7 @@ NEXT_PUBLIC_APP_URL=http://localhost:3000
 npm run dev
 ```
 
-Open [[http://localhost:3000](https://pulse-log-six.vercel.app/)].
+Open [[https://pulse-log-six.vercel.app](https://pulse-log-six.vercel.app/)].
 
 ---
 
